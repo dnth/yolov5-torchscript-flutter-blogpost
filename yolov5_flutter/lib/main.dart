@@ -16,11 +16,9 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:photo_view/photo_view.dart';
 
 final List<String> imgList = [
-  'https://github.com/dnth/flutter_microalgae/blob/main/sample_images/IMG_20191212_151351.jpg?raw=true',
-  'https://github.com/dnth/flutter_microalgae/blob/main/sample_images/IMG_20191212_151438.jpg?raw=true',
-  'https://github.com/dnth/flutter_microalgae/blob/main/sample_images/IMG_20191212_151559.jpg?raw=true',
-  'https://github.com/dnth/flutter_microalgae/blob/main/sample_images/IMG_20191212_151844.jpg?raw=true',
-  'https://github.com/dnth/flutter_microalgae/blob/main/sample_images/IMG_20191212_153614.jpg?raw=true',
+  'https://raw.githubusercontent.com/dnth/yolov5-flutter-pytorch-lite-blogpost/main/yolov5_flutter/sample_imgs/pexels-kelly-l-2928147.jpg?raw=true',
+  'https://github.com/dnth/yolov5-flutter-pytorch-lite-blogpost/blob/main/yolov5_flutter/sample_imgs/pexels-koolshooters-8105791.jpg?raw=true',
+  'https://github.com/dnth/yolov5-flutter-pytorch-lite-blogpost/blob/main/yolov5_flutter/sample_imgs/pexels-koolshooters-8104858.jpg?raw=true',
 ];
 
 // Reading bytes from a network image
