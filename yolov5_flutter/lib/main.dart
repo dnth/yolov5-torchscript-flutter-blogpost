@@ -160,7 +160,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Pytorch Mobile Example'),
+          title: const Text('Torchscript on Flutter'),
         ),
         body: Container(
           padding: EdgeInsets.all(8.0),
