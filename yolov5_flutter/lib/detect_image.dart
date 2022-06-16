@@ -1,30 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:pytorch_lite/pytorch_lite.dart';
 
-Future<Map> detectImage(String imageBase64) async {
-  final response = await http.post(
-    Uri.parse(
-        'https://hf.space/embed/dnth/webdemo-microalgae-counting/+/api/predict/'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, List<dynamic>>{
-      'data': [imageBase64]
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    final detectionResult = jsonDecode(response.body)["data"];
-
-    final imageData =
-        detectionResult[0].replaceAll('data:image/png;base64,', '');
-
-    return {"count": detectionResult[1], "image": imageData};
-    // If the server did return a 200 CREATED response,
-    // then decode the image and return it.
-  } else {
-    // If the server did not return a 200 OKAY response,
-    // then throw an exception.
-    throw Exception('Failed to get results.');
+//load your model
+Future loadModel(imageModel, objectModel) async {
+  String pathImageModel = "assets/models/model_classification.pt";
+  //String pathCustomModel = "assets/models/custom_model.ptl";
+  String pathObjectDetectionModel = "assets/models/best.torchscript";
+  try {
+    imageModel = await PytorchLite.loadClassificationModel(
+        pathImageModel, 224, 224,
+        labelPath: "assets/labels/label_classification_imageNet.txt");
+    //_customModel = await PytorchLite.loadCustomModel(pathCustomModel);
+    objectModel = await PytorchLite.loadObjectDetectionModel(
+        pathObjectDetectionModel, 1, 640, 640,
+        labelPath: "assets/labels/labels_objectDetection_pistol.txt");
+  } on PlatformException {
+    print("only supported for android");
   }
 }
