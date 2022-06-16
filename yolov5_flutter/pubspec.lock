@@ -436,6 +436,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
+  pytorch_lite:
+    dependency: "direct main"
+    description:
+      name: pytorch_lite
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.5"
   rounded_loading_button:
     dependency: "direct main"
     description:

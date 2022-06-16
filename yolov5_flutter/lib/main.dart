@@ -15,6 +15,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:photo_view/photo_view.dart';
 
+import 'package:pytorch_lite/pigeon.dart';
+import 'package:pytorch_lite/pytorch_lite.dart';
+
 final List<String> imgList = [
   'https://raw.githubusercontent.com/dnth/yolov5-flutter-pytorch-lite-blogpost/main/yolov5_flutter/sample_imgs/pexels-kelly-l-2928147.jpg?raw=true',
   'https://github.com/dnth/yolov5-flutter-pytorch-lite-blogpost/blob/main/yolov5_flutter/sample_imgs/pexels-koolshooters-8105791.jpg?raw=true',
@@ -40,11 +43,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MicroSense',
+      title: 'YOLOv5 Detector',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'MicroSense'),
+      home: const MyHomePage(title: 'YOLOv5 Torchscript'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -92,6 +95,137 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return croppedFile!;
+  }
+
+  ClassificationModel? _imageModel;
+  //CustomModel? _customModel;
+  late ModelObjectDetection _objectModel;
+  String? _imagePrediction;
+  List? _prediction;
+  File? _image;
+  ImagePicker _picker = ImagePicker();
+  bool objectDetection = false;
+  List<ResultObjectDetection?> objDetect = [];
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
+  }
+
+  //load your model
+  Future loadModel() async {
+    String pathImageModel = "assets/models/model_classification.pt";
+    //String pathCustomModel = "assets/models/custom_model.ptl";
+    String pathObjectDetectionModel = "assets/models/yolov5s.torchscript";
+    try {
+      _imageModel = await PytorchLite.loadClassificationModel(
+          pathImageModel, 224, 224,
+          labelPath: "assets/labels/label_classification_imageNet.txt");
+      //_customModel = await PytorchLite.loadCustomModel(pathCustomModel);
+      _objectModel = await PytorchLite.loadObjectDetectionModel(
+          pathObjectDetectionModel, 80, 640, 640,
+          labelPath: "assets/labels/labels_objectDetection_Coco.txt");
+    } on PlatformException {
+      print("only supported for android");
+    }
+  }
+
+  //run an image model
+  Future runObjectDetectionWithoutLabels() async {
+    //pick a random image
+    final PickedFile? image =
+        await _picker.getImage(source: ImageSource.gallery);
+    objDetect = await _objectModel
+        .getImagePredictionList(await File(image!.path).readAsBytes());
+    objDetect.forEach((element) {
+      print({
+        "score": element?.score,
+        "className": element?.className,
+        "class": element?.classIndex,
+        "rect": {
+          "left": element?.rect.left,
+          "top": element?.rect.top,
+          "width": element?.rect.width,
+          "height": element?.rect.height,
+          "right": element?.rect.right,
+          "bottom": element?.rect.bottom,
+        },
+      });
+    });
+    setState(() {
+      //this.objDetect = objDetect;
+      _image = File(image.path);
+    });
+  }
+
+  Future runObjectDetection() async {
+    //pick a random image
+    final PickedFile? image =
+        await _picker.getImage(source: ImageSource.gallery);
+    objDetect = await _objectModel.getImagePrediction(
+        await File(image!.path).readAsBytes(),
+        minimumScore: 0.1,
+        IOUThershold: 0.3);
+    objDetect.forEach((element) {
+      print({
+        "score": element?.score,
+        "className": element?.className,
+        "class": element?.classIndex,
+        "rect": {
+          "left": element?.rect.left,
+          "top": element?.rect.top,
+          "width": element?.rect.width,
+          "height": element?.rect.height,
+          "right": element?.rect.right,
+          "bottom": element?.rect.bottom,
+        },
+      });
+    });
+    setState(() {
+      //this.objDetect = objDetect;
+      _image = File(image.path);
+    });
+  }
+
+  Future runClassification() async {
+    objDetect = [];
+    //pick a random image
+    final PickedFile? image =
+        await _picker.getImage(source: ImageSource.gallery);
+    //get prediction
+    //labels are 1000 random english words for show purposes
+    _imagePrediction = await _imageModel!
+        .getImagePrediction(await File(image!.path).readAsBytes());
+
+    List<double?>? predictionList = await _imageModel!.getImagePredictionList(
+      await File(image.path).readAsBytes(),
+    );
+
+    print(predictionList);
+    List<double?>? predictionListProbabilites =
+        await _imageModel!.getImagePredictionListProbabilities(
+      await File(image.path).readAsBytes(),
+    );
+    //Gettting the highest Probability
+    double maxScoreProbability = double.negativeInfinity;
+    double sumOfProbabilites = 0;
+    int index = 0;
+    for (int i = 0; i < predictionListProbabilites!.length; i++) {
+      if (predictionListProbabilites[i]! > maxScoreProbability) {
+        maxScoreProbability = predictionListProbabilites[i]!;
+        sumOfProbabilites = sumOfProbabilites + predictionListProbabilites[i]!;
+        index = i;
+      }
+    }
+    print(predictionListProbabilites);
+    print(index);
+    print(sumOfProbabilites);
+    print(maxScoreProbability);
+
+    setState(() {
+      //this.objDetect = objDetect;
+      _image = File(image.path);
+    });
   }
 
   @override
@@ -250,28 +384,29 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: const Text('Count!',
                         style: TextStyle(color: Colors.white)),
                     controller: _btnController,
-                    onPressed: isClassifying || (imgBytesInput == null)
-                        ? null // null value disables the button
-                        : () async {
-                            setState(() {
-                              isClassifying = true;
-                            });
+                    onPressed: runObjectDetection,
+                    // onPressed: isClassifying || (imgBytesInput == null)
+                    //     ? null // null value disables the button
+                    //     : () async {
+                    //         setState(() {
+                    //           isClassifying = true;
+                    //         });
 
-                            String base64Image = "data:image/png;base64," +
-                                base64Encode(imgBytesInput!);
+                    //         String base64Image = "data:image/png;base64," +
+                    //             base64Encode(imgBytesInput!);
 
-                            final result = await detectImage(base64Image);
+                    //         final result =  await detectImage(base64Image);
 
-                            _btnController.reset();
+                    //         _btnController.reset();
 
-                            setState(() {
-                              _microalgaeCount = result['count'].toString();
+                    //         setState(() {
+                    //           _microalgaeCount = result['count'].toString();
 
-                              imgBytesInference = base64Decode(result['image']);
+                    //           imgBytesInference = base64Decode(result['image']);
 
-                              isClassifying = false;
-                            });
-                          },
+                    //           isClassifying = false;
+                    //         });
+                    //       },
                   ),
                 ],
               ),
