@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pytorch_lite/pigeon.dart';
 import 'package:pytorch_lite/pytorch_lite.dart';
 
+import 'package:empty_widget/empty_widget.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -87,7 +89,7 @@ class _MyAppState extends State<MyApp> {
         await _picker.getImage(source: ImageSource.gallery);
     objDetect = await _objectModel.getImagePrediction(
         await File(image!.path).readAsBytes(),
-        minimumScore: 0.7,
+        minimumScore: 0.3,
         IOUThershold: 0.3);
     objDetect.forEach((element) {
       print({
@@ -166,12 +168,13 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 */
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('YOLOv5-S | Torchscript | Flutter'),
+          title: const Text('YOLOv5-Nano | Torchscript | Flutter'),
         ),
         body: Container(
           padding: EdgeInsets.all(8.0),
@@ -181,10 +184,38 @@ class _MyAppState extends State<MyApp> {
               Expanded(
                 child: objDetect.isNotEmpty
                     ? _image == null
-                        ? Text('No image selected.')
+                        ? EmptyWidget(
+                            image: null,
+                            packageImage: PackageImage.Image_3,
+                            title: 'No image',
+                            // subTitle: 'Select an image or upload your own',
+                            titleTextStyle: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xff9da9c7),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            subtitleTextStyle: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xffabb8d6),
+                            ),
+                          )
                         : _objectModel.renderBoxesOnImage(_image!, objDetect)
                     : _image == null
-                        ? Text('No image selected.')
+                        ? EmptyWidget(
+                            image: null,
+                            packageImage: PackageImage.Image_3,
+                            title: 'No image',
+                            // subTitle: 'Select an image or upload your own',
+                            titleTextStyle: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xff9da9c7),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            subtitleTextStyle: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xffabb8d6),
+                            ),
+                          )
                         : Image.file(_image!),
               ),
               Center(
@@ -210,42 +241,42 @@ class _MyAppState extends State<MyApp> {
               ),
               */
 
-              TextButton(
-                onPressed: runClassification,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
-                child: const Text(
-                  "Run Classification",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: runClassification,
+              //   style: TextButton.styleFrom(
+              //     backgroundColor: Colors.blue,
+              //   ),
+              //   child: const Text(
+              //     "Run Classification",
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
               TextButton(
                 onPressed: runObjectDetection,
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.blue,
                 ),
                 child: const Text(
-                  "Run object detection with labels",
+                  "Infer with YOLOv5-Nano",
                   style: TextStyle(
                     color: Colors.white,
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: runObjectDetectionWithoutLabels,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
-                child: const Text(
-                  "Run object detection without labels",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: runObjectDetectionWithoutLabels,
+              //   style: TextButton.styleFrom(
+              //     backgroundColor: Colors.blue,
+              //   ),
+              //   child: const Text(
+              //     "Run object detection without labels",
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
               Center(
                 child: Visibility(
                   visible: _prediction != null,
