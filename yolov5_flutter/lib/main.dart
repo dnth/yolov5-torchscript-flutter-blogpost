@@ -24,6 +24,9 @@ class _MyAppState extends State<MyApp> {
   ImagePicker _picker = ImagePicker();
   bool objectDetection = false;
   List<ResultObjectDetection?> objDetect = [];
+
+  final stopwatch = Stopwatch();
+
   @override
   void initState() {
     super.initState();
@@ -34,15 +37,15 @@ class _MyAppState extends State<MyApp> {
   Future loadModel() async {
     String pathImageModel = "assets/models/model_classification.pt";
     //String pathCustomModel = "assets/models/custom_model.ptl";
-    String pathObjectDetectionModel = "assets/models/best.torchscript";
+    String pathObjectDetectionModel = "assets/models/yolov5n.torchscript";
     try {
       _imageModel = await PytorchLite.loadClassificationModel(
           pathImageModel, 224, 224,
           labelPath: "assets/labels/label_classification_imageNet.txt");
       //_customModel = await PytorchLite.loadCustomModel(pathCustomModel);
       _objectModel = await PytorchLite.loadObjectDetectionModel(
-          pathObjectDetectionModel, 1, 640, 640,
-          labelPath: "assets/labels/labels_objectDetection_pistol.txt");
+          pathObjectDetectionModel, 80, 640, 640,
+          labelPath: "assets/labels/labels_objectDetection_Coco.txt");
     } on PlatformException {
       print("only supported for android");
     }
@@ -77,6 +80,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future runObjectDetection() async {
+    stopwatch.start();
+
     //pick a random image
     final PickedFile? image =
         await _picker.getImage(source: ImageSource.gallery);
@@ -103,6 +108,12 @@ class _MyAppState extends State<MyApp> {
       //this.objDetect = objDetect;
       _image = File(image.path);
     });
+
+    stopwatch.stop();
+    print("Inference time");
+    print(stopwatch.elapsedMilliseconds);
+    print("ms");
+    stopwatch.reset();
   }
 
   Future runClassification() async {
@@ -160,7 +171,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Torchscript on Flutter'),
+          title: const Text('YOLOv5-S | Torchscript | Flutter'),
         ),
         body: Container(
           padding: EdgeInsets.all(8.0),
