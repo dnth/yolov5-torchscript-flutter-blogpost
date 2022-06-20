@@ -172,9 +172,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('YOLOv5-Nano | Torchscript | Flutter'),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.camera),
+          onPressed: runObjectDetection,
         ),
         body: Container(
           padding: EdgeInsets.all(8.0),
@@ -218,12 +223,12 @@ class _MyAppState extends State<MyApp> {
                           )
                         : Image.file(_image!),
               ),
-              Center(
-                child: Visibility(
-                  visible: _imagePrediction != null,
-                  child: Text("$_imagePrediction"),
-                ),
-              ),
+              // Center(
+              //   child: Visibility(
+              //     visible: _imagePrediction != null,
+              //     child: Text("$_imagePrediction"),
+              //   ),
+              // ),
               /*
               Center(
                 child: TextButton(
@@ -253,18 +258,18 @@ class _MyAppState extends State<MyApp> {
               //     ),
               //   ),
               // ),
-              TextButton(
-                onPressed: runObjectDetection,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
-                child: const Text(
-                  "Infer with YOLOv5-Nano",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: runObjectDetection,
+              //   style: TextButton.styleFrom(
+              //     backgroundColor: Colors.blue,
+              //   ),
+              //   child: const Text(
+              //     "Infer with YOLOv5-Nano",
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
               // TextButton(
               //   onPressed: runObjectDetectionWithoutLabels,
               //   style: TextButton.styleFrom(
