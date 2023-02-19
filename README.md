@@ -1,3 +1,3 @@
-# Inference on the Edge: Optimized Sparse YOLOv5 with Torchscript and Flutter on Android
+# YOLOv5 at the Edge: Fast Inference on Android with Torchscript and Flutter
 
 A companion repo for the blog post.
